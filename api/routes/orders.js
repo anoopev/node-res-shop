@@ -45,7 +45,18 @@ router.post('/', (req, res, next) => {
     order.save()
         .then(result => {
             console.log("Order POST result: ", result);
-            res.status(201).json(result);
+            res.status(201).json({
+                message: 'Placed order successfully!',
+                createdOrder: {
+                    _id: result._id,
+                    product: result.product,
+                    quantity: result.quantity
+                },
+                request: {
+                    type: 'GET',
+                    URL: 'http:localhost:3000/orders/' + result._id
+                }
+            });
         })
         .catch(err => {
             console.log("Order POST error: ", err);
