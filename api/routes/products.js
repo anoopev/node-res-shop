@@ -52,8 +52,16 @@ router.post('/', (req, res, next) => {
     product.save().then(result => {
         console.log("Product saved in database: ", result);
         res.status(201).json({
-            message: 'Handling POST requests to /products',
-            createdProduct: result
+            message: 'Created product successfully!',
+            createdProduct: {
+                name: result.name,
+                price: result.price,
+                _id: result._id,
+                request: {
+                    type: 'GET',
+                    URL: 'http://localhost:3000/products/' + result._id
+                }
+            }
         });
     })
     .catch(err => {
@@ -66,10 +74,20 @@ router.post('/', (req, res, next) => {
 
 router.get('/:productId', (req, res, next) => {
     const id = req.params.productId;
-    Product.findById(id).exec().then( doc => {
+    Product.findById(id)
+    .select('name price _id')
+    .exec()
+    .then( doc => {
         console.log("Product Find result from database: ", doc);
         if (doc) {
-            res.status(200).json(doc);
+            res.status(200).json({
+                product: doc,
+                request: {
+                    type: 'GET',
+                    description: 'GET_ALL_PRODUCTS',
+                    URL: 'http:/localhost:3000/products'
+                }
+            });
         }
         else {
             res.status(404).json({ message: "Product doesn't exist with this id!"});
@@ -92,7 +110,13 @@ router.patch('/:productId', (req, res, next) => {
     .exec()
     .then(result => {
         console.log("Patch request to DB result: ", result);
-        res.status(200).json(result);
+        res.status(200).json({
+            message: 'Product updated successfully!',
+            request: {
+                type: 'GET',
+                URL: 'http://localhost:3000/products/' + id
+            }
+        });
     })
     .catch(err => {
         console.log("Error when PATCH to DB: ", err);
