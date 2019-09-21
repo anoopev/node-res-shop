@@ -13,7 +13,17 @@ router.get('/', (req, res, next) => {
         console.log("All Products from DB: ", docs);
         const response = {
             count: docs.length,
-            products: docs
+            products: docs.map(doc => {
+                return {
+                    name: doc.name,
+                    price: doc.price,
+                    _id: doc._id,
+                    request: {
+                        type: 'GET',
+                        URL: 'http://localhost:3000/products/' + doc._id
+                    }
+                }
+            })
         }
         if (docs.length >= 0) {
             res.status(200).json(response);
